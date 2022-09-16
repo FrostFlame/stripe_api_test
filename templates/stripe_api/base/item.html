@@ -1,10 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "stripe_api/base/base_page.html" %}
+{% block title %}
+    {{ item.name }}
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+
+    <h1>{{ item.name }}</h1>
+    <h3>{{ item.description }}</h3>
+    <h3>{{ item.price }} руб.</h3>
+    <form>
+      <button onclick="checkout()" type="button">Checkout</button>
+    </form>
+
+<script>
+    function checkout() {
+        var stripe = Stripe('pk_test_51LiJ36BdQlbmWvVsquE48L8M6AoMnYwmvvfpA9gRIeAWM2or77l7dThaprSp3xmlYooQ5X6bnnXBytI1OBSyjAbj00qBjU0map');
+        fetch('/buy/{{ item.id }}', {
+            method: 'GET',
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(session) {
+            console.log(session)
+            return stripe.redirectToCheckout({ sessionId: session });
+        })
+        .then(function(result) {
+            if (result.error) {
+            alert(result.error.message);
+      }
+    });
+    }
+</script>
+{% endblock %}
