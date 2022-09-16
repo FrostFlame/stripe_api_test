@@ -6,9 +6,9 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from api.models import Item
 from api.serializers import ItemSerializer
+from stripe_api.settings import STRIPE_API_KEY
 
-
-stripe.api_key = 'sk_test_51LiJ36BdQlbmWvVs68mmBAFaSmcLIMCICblG6Gg6MXoV7fxWdlefd5XHRKzmg3EEOjgoOiK7JbRcgACfZ9zqDuas00XpMQMwPB'
+stripe.api_key = STRIPE_API_KEY
 
 
 class BuyItem(APIView):
