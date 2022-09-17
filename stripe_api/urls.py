@@ -22,11 +22,14 @@ from api.views import custom_handler404
 
 router = routers.DefaultRouter()
 router.register(r'items', views.ItemViewSet)
+router.register(r'orders', views.OrderViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('buy/<int:pk>', views.BuyItem.as_view(), name='buy'),
+    path('order_bulk/<int:pk>', views.BuyOrder.as_view(), name='bulk'),
     path('item/<int:pk>', views.ItemView.as_view(), name='item'),
+    path('order/<int:pk>', views.OrderView.as_view(), name='order'),
     path('success', TemplateView.as_view(template_name='stripe_api/base/success.html'), name='success'),
     path('cancel', TemplateView.as_view(template_name='stripe_api/base/cancel.html'), name='cancel'),
     path('admin/', admin.site.urls),

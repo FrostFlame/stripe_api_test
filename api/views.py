@@ -4,8 +4,8 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from api.models import Item
-from api.serializers import ItemSerializer
+from api.models import Item, Order
+from api.serializers import ItemSerializer, OrderSerializer
 from stripe_api.settings import STRIPE_API_KEY
 
 stripe.api_key = STRIPE_API_KEY
@@ -58,3 +58,47 @@ class ItemView(APIView):
 
 def custom_handler404(request, exception):
     return render(request, "stripe_api/base/404.html", status=404)
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
+class BuyOrder(APIView):
+    def get(self, request, pk):
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response('Order с таким id не существует.')
+        items = order.items.all()
+        if not items:
+            return Response('Данный Order не содержит Items"')
+        line_items = []
+        for item in items:
+            line_items.append({
+                'price_data': {
+                    'currency': 'rub',
+                    'product_data': {
+                        'name': item.name,
+                    },
+                    'unit_amount': int(item.price * 100),
+                },
+                'quantity': 1,
+            })
+        session = stripe.checkout.Session.create(
+            line_items=line_items,
+            mode='payment',
+            success_url='http://localhost:8000/success',
+            cancel_url='http://localhost:8000/cancel',
+        )
+        return Response(session.stripe_id)
+
+
+class OrderView(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'stripe_api/base/order.html'
+
+    def get(self, request, pk):
+        order = Order.objects.get(pk=pk)
+        return Response({'order': order})

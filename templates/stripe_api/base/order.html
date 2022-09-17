@@ -1,0 +1,40 @@
+{% extends "stripe_api/base/base_page.html" %}
+{% block title %}
+    {{ order.name }}
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{ order.name }}</h1>
+    <h3>Состав заказа:</h3>
+    <ul>
+        {% for item in order.items.all %}
+            <h4>-{{ item.description }}</h4>
+            <h4>{{ item.price }} руб.</h4>
+        {% endfor %}
+    </ul>
+    <form>
+      <button onclick="checkout()" type="button">Checkout</button>
+    </form>
+
+<script>
+    function checkout() {
+        var stripe = Stripe('pk_test_51LiJ36BdQlbmWvVsquE48L8M6AoMnYwmvvfpA9gRIeAWM2or77l7dThaprSp3xmlYooQ5X6bnnXBytI1OBSyjAbj00qBjU0map');
+        fetch('/order_bulk/{{ order.id }}', {
+            method: 'GET',
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(session) {
+            console.log(session)
+            return stripe.redirectToCheckout({ sessionId: session });
+        })
+        .then(function(result) {
+            if (result.error) {
+            alert(result.error.message);
+      }
+    });
+    }
+</script>
+{% endblock %}
