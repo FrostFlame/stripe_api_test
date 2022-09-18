@@ -22,14 +22,14 @@
     {% endif %}
     {% if order.taxes %}
         <h3>Налоги:</h3>
-        {% for tax in order.taxes.all %}
-            <ul>
+        <ul>
+            {% for tax in order.taxes.all %}
                 <li>
                     <h4>{{ tax.name }}</h4>
                     <h4>{{ tax.percentage }}%</h4>
                 </li>
-            </ul>
-        {% endfor %}
+            {% endfor %}
+        </ul>
     {% endif %}
     <form>
         <button onclick="checkout()" type="button">Оплатить</button>

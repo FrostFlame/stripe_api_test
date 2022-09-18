@@ -17,7 +17,7 @@ class Item(models.Model):
 class Order(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название заказа')
     discount = models.ForeignKey('Discount', related_name='orders', on_delete=models.DO_NOTHING, null=True, blank=True)
-    taxes = models.ManyToManyField('Tax', related_name='orders', null=True, blank=True)
+    taxes = models.ManyToManyField('Tax', related_name='orders', blank=True)
 
     def __str__(self):
         return self.name

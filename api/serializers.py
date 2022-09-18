@@ -13,7 +13,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 class OrderSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Order
-        fields = ['url', 'name', 'items', 'discount']
+        fields = ['url', 'name', 'items', 'discount', 'taxes']
 
 
 class DiscountSerializer(serializers.HyperlinkedModelSerializer):

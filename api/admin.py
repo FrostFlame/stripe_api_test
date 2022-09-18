@@ -33,7 +33,34 @@ class OrderAdmin(admin.ModelAdmin):
     form = OrderForm
 
 
+class DiscountForm(forms.ModelForm):
+    class Meta:
+        model = Discount
+        fields = ['name', 'percent_off']
+
+    orders = forms.ModelMultipleChoiceField(queryset=Order.objects.all(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(DiscountForm, self).__init__(*args, **kwargs)
+        if self.instance:
+            if self.instance.orders:
+                self.fields['orders'].initial = self.instance.orders.all()
+            else:
+                self.fields['orders'].initial = []
+
+    def save(self, *args, **kwargs):
+        instance = super(DiscountForm, self).save(commit=False)
+        self.fields['orders'].initial.update(discount=None)
+        instance.save()
+        self.cleaned_data['orders'].update(discount=instance)
+        return instance
+
+
+class DiscountAdmin(admin.ModelAdmin):
+    form = DiscountForm
+
+
 admin.site.register(Item)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(Discount)
+admin.site.register(Discount, DiscountAdmin)
 admin.site.register(Tax)
