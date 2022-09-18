@@ -23,6 +23,7 @@ from api.views import custom_handler404
 router = routers.DefaultRouter()
 router.register(r'items', views.ItemViewSet)
 router.register(r'orders', views.OrderViewSet)
+router.register(r'discounts', views.DiscountViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

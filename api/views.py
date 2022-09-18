@@ -4,8 +4,8 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from api.models import Item, Order
-from api.serializers import ItemSerializer, OrderSerializer
+from api.models import Item, Order, Discount
+from api.serializers import ItemSerializer, OrderSerializer, DiscountSerializer
 from stripe_api.settings import STRIPE_API_KEY
 
 stripe.api_key = STRIPE_API_KEY
@@ -86,9 +86,14 @@ class BuyOrder(APIView):
                 },
                 'quantity': 1,
             })
+        discounts = []
+        if order.discount:
+            coupon = stripe.Coupon.create(percent_off=order.discount.percent_off, currency='rub', duration='once', name=order.discount.name)
+            discounts = [{'coupon': coupon.id}]
         session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
+            discounts=discounts,
             success_url='http://localhost:8000/success',
             cancel_url='http://localhost:8000/cancel',
         )
@@ -102,3 +107,8 @@ class OrderView(APIView):
     def get(self, request, pk):
         order = Order.objects.get(pk=pk)
         return Response({'order': order})
+
+
+class DiscountViewSet(viewsets.ModelViewSet):
+    queryset = Discount.objects.all()
+    serializer_class = DiscountSerializer

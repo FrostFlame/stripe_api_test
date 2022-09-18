@@ -14,7 +14,7 @@
         {% endfor %}
     </ul>
     <form>
-      <button onclick="checkout()" type="button">Checkout</button>
+      <button onclick="checkout()" type="button">Оплатить</button>
     </form>
 
 <script>
@@ -27,7 +27,6 @@
             return response.json();
         })
         .then(function(session) {
-            console.log(session)
             return stripe.redirectToCheckout({ sessionId: session });
         })
         .then(function(result) {
