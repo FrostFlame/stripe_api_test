@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models import Item, Order, Discount
+from api.models import Item, Order, Discount, Tax
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,3 +20,9 @@ class DiscountSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Discount
         fields = ['url', 'name', 'percent_off', 'order']
+
+
+class TaxSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Tax
+        fields = ['url', 'name', 'percentage', 'is_inclusive', 'orders']

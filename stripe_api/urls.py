@@ -24,6 +24,7 @@ router = routers.DefaultRouter()
 router.register(r'items', views.ItemViewSet)
 router.register(r'orders', views.OrderViewSet)
 router.register(r'discounts', views.DiscountViewSet)
+router.register(r'taxes', views.TaxViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

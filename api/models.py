@@ -17,6 +17,7 @@ class Item(models.Model):
 class Order(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название заказа')
     discount = models.ForeignKey('Discount', related_name='orders', on_delete=models.DO_NOTHING, null=True, blank=True)
+    taxes = models.ManyToManyField('Tax', related_name='orders', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -30,5 +31,13 @@ class Discount(models.Model):
         return self.name
 
 
-# class Tax(models.Model):
-#     pass
+class Tax(models.Model):
+    class Meta:
+        verbose_name_plural = "taxes"
+
+    name = models.CharField(max_length=50, verbose_name='Название налога')
+    is_inclusive = models.BooleanField(default=False, verbose_name='Включён?')
+    percentage = models.IntegerField(verbose_name='Процент налога')
+
+    def __str__(self):
+        return self.name
