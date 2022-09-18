@@ -7,7 +7,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['url', 'name', 'description', 'price', 'order']
+        fields = ['url', 'name', 'description', 'price', 'currency', 'order']
 
 
 class OrderSerializer(serializers.HyperlinkedModelSerializer):

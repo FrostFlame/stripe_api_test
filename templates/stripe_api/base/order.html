@@ -11,7 +11,7 @@
         {% for item in order.items.all %}
             <li>
                 <h4>{{ item.description }}</h4>
-                <h4>{{ item.price }} руб.</h4>
+                <h4>{{ item.price }} {{ item.currency }}</h4>
             </li>
         {% endfor %}
     </ul>
@@ -31,13 +31,17 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <form>
-        <button onclick="checkout()" type="button">Оплатить</button>
-    </form>
+    {% if same_currency %}
+        <form>
+            <button onclick="checkout()" type="button">Оплатить</button>
+        </form>
+    {% else %}
+        <h4>Товары в этом заказе имеют цены в разных валютах, оплатить их вместе нельзя.</h4>
+    {% endif %}
 
     <script>
         function checkout() {
-            var stripe = Stripe('pk_test_51LiJ36BdQlbmWvVsquE48L8M6AoMnYwmvvfpA9gRIeAWM2or77l7dThaprSp3xmlYooQ5X6bnnXBytI1OBSyjAbj00qBjU0map');
+            var stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
             fetch('/order_bulk/{{ order.id }}', {
                 method: 'GET',
             })

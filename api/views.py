@@ -1,3 +1,5 @@
+from functools import reduce
+
 import stripe
 from django.shortcuts import render
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -6,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from api.models import Item, Order, Discount, Tax
 from api.serializers import ItemSerializer, OrderSerializer, DiscountSerializer, TaxSerializer
-from stripe_api.settings import STRIPE_API_KEY
+from stripe_api.settings import STRIPE_API_KEY, STRIPE_PUBLISHABLE_KEY
 
 stripe.api_key = STRIPE_API_KEY
 
@@ -27,7 +29,7 @@ class BuyItem(APIView):
         session = stripe.checkout.Session.create(
             line_items=[{
                 'price_data': {
-                    'currency': 'rub',
+                    'currency': item.currency,
                     'product_data': {
                         'name': item.name,
                     },
@@ -53,7 +55,7 @@ class ItemView(APIView):
 
     def get(self, request, pk):
         item = Item.objects.get(pk=pk)
-        return Response({'item': item})
+        return Response({'item': item, 'STRIPE_PUBLISHABLE_KEY': STRIPE_PUBLISHABLE_KEY})
 
 
 def custom_handler404(request, exception):
@@ -78,7 +80,7 @@ class BuyOrder(APIView):
         for item in items:
             line_items.append({
                 'price_data': {
-                    'currency': 'rub',
+                    'currency': item.currency,
                     'product_data': {
                         'name': item.name,
                     },
@@ -88,7 +90,7 @@ class BuyOrder(APIView):
             })
         discounts = []
         if order.discount:
-            coupon = stripe.Coupon.create(percent_off=order.discount.percent_off, currency='rub', duration='once', name=order.discount.name)
+            coupon = stripe.Coupon.create(percent_off=order.discount.percent_off, duration='once', name=order.discount.name)
             discounts = [{'coupon': coupon.id}]
         if order.taxes:
             line_items[0]['tax_rates'] = [stripe.TaxRate.create(display_name=tax.name, inclusive=tax.is_inclusive, percentage=tax.percentage).id for tax in order.taxes.all()]
@@ -108,7 +110,8 @@ class OrderView(APIView):
 
     def get(self, request, pk):
         order = Order.objects.get(pk=pk)
-        return Response({'order': order})
+        same_currency = reduce(lambda x, y: x == y, [item.currency for item in order.items.all()])
+        return Response({'order': order, 'STRIPE_PUBLISHABLE_KEY': STRIPE_PUBLISHABLE_KEY, 'same_currency': same_currency})
 
 
 class DiscountViewSet(viewsets.ModelViewSet):
