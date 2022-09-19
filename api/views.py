@@ -1,6 +1,7 @@
 from functools import reduce
 
 import stripe
+from django.http import Http404
 from django.shortcuts import render
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
@@ -54,7 +55,10 @@ class ItemView(APIView):
     template_name = 'stripe_api/base/item.html'
 
     def get(self, request, pk):
-        item = Item.objects.get(pk=pk)
+        try:
+            item = Item.objects.get(pk=pk)
+        except Item.DoesNotExist:
+            return custom_handler404(request, 'ads')
         return Response({'item': item, 'STRIPE_PUBLISHABLE_KEY': STRIPE_PUBLISHABLE_KEY})
 
 
@@ -109,7 +113,10 @@ class OrderView(APIView):
     template_name = 'stripe_api/base/order.html'
 
     def get(self, request, pk):
-        order = Order.objects.get(pk=pk)
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return custom_handler404(request, 'ads')
         same_currency = reduce(lambda x, y: x == y, [item.currency for item in order.items.all()])
         return Response({'order': order, 'STRIPE_PUBLISHABLE_KEY': STRIPE_PUBLISHABLE_KEY, 'same_currency': same_currency})
 
