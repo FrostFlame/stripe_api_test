@@ -1,0 +1,61 @@
+{% extends "stripe_api/base/base_page.html" %}
+{% block title %}
+    {{ order.name }}
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{ order.name }}</h1>
+    <h3>Состав заказа:</h3>
+    <ul>
+        {% for item in order.items.all %}
+            <li>
+                <h4>{{ item.description }}</h4>
+                <h4>{{ item.price }} {{ item.currency }}</h4>
+            </li>
+        {% endfor %}
+    </ul>
+    {% if order.discount %}
+        <h3>Скидки:</h3>
+        <h4>-{{ order.discount.name }}</h4>
+        <h4>{{ order.discount.percent_off }}%</h4>
+    {% endif %}
+    {% if order.taxes %}
+        <h3>Налоги:</h3>
+        <ul>
+            {% for tax in order.taxes.all %}
+                <li>
+                    <h4>{{ tax.name }}</h4>
+                    <h4>{{ tax.percentage }}%</h4>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if same_currency %}
+        <form>
+            <button onclick="checkout()" type="button">Оплатить</button>
+        </form>
+    {% else %}
+        <h4>Товары в этом заказе имеют цены в разных валютах, оплатить их вместе нельзя.</h4>
+    {% endif %}
+
+    <script>
+        function checkout() {
+            var stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
+            fetch('/order_bulk/{{ order.id }}', {
+                method: 'GET',
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (session) {
+                    return stripe.redirectToCheckout({sessionId: session});
+                })
+                .then(function (result) {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                });
+        }
+    </script>
+{% endblock %}

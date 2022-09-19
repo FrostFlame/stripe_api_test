@@ -1,0 +1,35 @@
+{% extends "stripe_api/base/base_page.html" %}
+{% block title %}
+    {{ item.name }}
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{ item.name }}</h1>
+    <h3>{{ item.description }}</h3>
+    <h3>{{ item.price }} {{ item.currency }}</h3>
+    <form>
+      <button onclick="checkout()" type="button">Оплатить</button>
+    </form>
+
+<script>
+    function checkout() {
+        var stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
+        fetch('/buy/{{ item.id }}', {
+            method: 'GET',
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(session) {
+            console.log(session)
+            return stripe.redirectToCheckout({ sessionId: session });
+        })
+        .then(function(result) {
+            if (result.error) {
+            alert(result.error.message);
+      }
+    });
+    }
+</script>
+{% endblock %}
