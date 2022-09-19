@@ -28,7 +28,7 @@ $ python manage.py runserver
 ```
 
 
-###API
+### API
 - [/](https://strpiapi.herokuapp.com/) - Корень проекта
 - [/items](https://strpiapi.herokuapp.com/items) - drf страница списка всех Items
 - [/items/{id}]() - drf страница Item
@@ -44,7 +44,7 @@ $ python manage.py runserver
 - [/order/{id}]() - получение html страницы выбранного Order
 
 
-###Удалённый сервер
+### Удалённый сервер
 Приложение развёрнуто на heroku.
 Ссылка - [https://strpiapi.herokuapp.com/](https://strpiapi.herokuapp.com/)
 Некоторые ссылки в пункте [API](#api) также ведут на этот сервер.
