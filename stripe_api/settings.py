@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 import environ
+import dj_database_url
 
 env = environ.Env()
 environ.Env.read_env()
@@ -80,6 +81,8 @@ WSGI_APPLICATION = 'stripe_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+MAX_CONN_AGE = 600
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -90,6 +93,15 @@ DATABASES = {
         'PORT': env('DATABASE_PORT'),
     }
 }
+
+if "DATABASE_URL" in os.environ:
+    # Configure Django for DATABASE_URL environment variable.
+    DATABASES["default"] = dj_database_url.config(
+        conn_max_age=MAX_CONN_AGE, ssl_require=True)
+
+    # Enable test database if found in CI environment.
+    if "CI" in os.environ:
+        DATABASES["default"]["TEST"] = DATABASES["default"]
 
 
 # Password validation
