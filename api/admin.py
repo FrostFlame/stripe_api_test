@@ -1,5 +1,5 @@
+"""Модели и формы для джанго-админки"""
 from django import forms
-from django.apps import apps
 from django.contrib import admin
 
 # Register your models here.
@@ -7,13 +7,19 @@ from api.models import Item, Order, Discount, Tax
 
 
 class OrderForm(forms.ModelForm):
+    """Форма модели заказов для джанго-админки"""
     class Meta:
+        """Мета-класс."""
         model = Order
         fields = ['name', 'discount', 'taxes']
 
-    items = forms.ModelMultipleChoiceField(queryset=Item.objects.all(), required=False)
+    items = forms.ModelMultipleChoiceField(
+        queryset=Item.objects.all(),
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
+        """Инициализация."""
         super(OrderForm, self).__init__(*args, **kwargs)
         if self.instance:
             if self.instance.items:
@@ -22,6 +28,7 @@ class OrderForm(forms.ModelForm):
                 self.fields['items'].initial = []
 
     def save(self, *args, **kwargs):
+        """Сохранение связей с товарами через заказ."""
         instance = super(OrderForm, self).save(commit=False)
         self.fields['items'].initial.update(order=None)
         instance.save()
@@ -30,17 +37,24 @@ class OrderForm(forms.ModelForm):
 
 
 class OrderAdmin(admin.ModelAdmin):
+    """Админ-модель заказов"""
     form = OrderForm
 
 
 class DiscountForm(forms.ModelForm):
+    """Форма модели скидок для джанго-админки."""
     class Meta:
+        """Мета-класс."""
         model = Discount
         fields = ['name', 'percent_off']
 
-    orders = forms.ModelMultipleChoiceField(queryset=Order.objects.all(), required=False)
+    orders = forms.ModelMultipleChoiceField(
+        queryset=Order.objects.all(),
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
+        """Иниуиализация."""
         super(DiscountForm, self).__init__(*args, **kwargs)
         if self.instance:
             if self.instance.orders:
@@ -49,6 +63,7 @@ class DiscountForm(forms.ModelForm):
                 self.fields['orders'].initial = []
 
     def save(self, *args, **kwargs):
+        """Сохранение связей с заказами через скидки."""
         instance = super(DiscountForm, self).save(commit=False)
         self.fields['orders'].initial.update(discount=None)
         instance.save()
@@ -57,6 +72,7 @@ class DiscountForm(forms.ModelForm):
 
 
 class DiscountAdmin(admin.ModelAdmin):
+    """Админ-модель скидок."""
     form = DiscountForm
 
 
