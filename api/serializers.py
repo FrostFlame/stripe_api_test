@@ -26,7 +26,7 @@ class DiscountSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """Мета-класс."""
         model = Discount
-        fields = ['url', 'name', 'percent_off', 'order']
+        fields = ['url', 'name', 'percent_off', 'orders']
 
 
 class TaxSerializer(serializers.HyperlinkedModelSerializer):
